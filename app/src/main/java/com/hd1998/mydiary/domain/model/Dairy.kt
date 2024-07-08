@@ -7,4 +7,7 @@ import java.util.UUID
 
 
 @Entity
-data class Dairy(@PrimaryKey val id: String = UUID.randomUUID().toString(), val title: String, val text: String, val date: Date = Date())
+data class Dairy(@PrimaryKey val id: String = UUID.randomUUID().toString(),
+                     var title: String, val text: String,
+                      var date: Date = Date(),
+                     var password: String? = null )

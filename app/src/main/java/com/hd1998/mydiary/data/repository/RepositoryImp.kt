@@ -1,11 +1,12 @@
 package com.hd1998.mydiary.data.repository
 
-import com.hd1998.mydiary.data.local.db.DairyDatabase
 import com.hd1998.mydiary.data.local.doa.DairyDao
 import com.hd1998.mydiary.domain.model.Dairy
 import com.hd1998.mydiary.domain.repository.Repository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
 class RepositoryImp(private val dairyDao: DairyDao) : Repository {
@@ -27,12 +28,12 @@ class RepositoryImp(private val dairyDao: DairyDao) : Repository {
         }
     }
 
-    override suspend fun getDairyById(id: String): Dairy? {
-        return try {
-            dairyDao.getDairyById(id)
-        } catch (e: Exception) {
+    override  suspend fun getDairyById(id: String): Flow<Dairy?> {
+        return flow {
+            emit(dairyDao.getDairyById(id))
+        }.catch { e ->
             println(e)
-            null
+            emit(null) // Emit null in case of an exception
         }
     }
 

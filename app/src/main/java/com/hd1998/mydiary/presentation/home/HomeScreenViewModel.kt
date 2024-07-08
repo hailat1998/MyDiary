@@ -17,7 +17,7 @@ class HomeScreenViewModel(private val repository: Repository): ViewModel()  {
         fetchDairyData()
     }
 
-    private fun fetchDairyData() {
+     fun fetchDairyData() {
         viewModelScope.launch {
             try {
                 val data = repository.getAllDairy().collect { dairies ->
