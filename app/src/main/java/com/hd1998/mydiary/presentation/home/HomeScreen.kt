@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,12 +36,17 @@ import java.util.Locale
 fun HomeScreen(
     homeScreenState: HomeScreenState,
     toDairyDetail: (id: String?) -> Unit,
+    toNewDairy: () -> Unit,
     toSearch: () -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
     Scaffold(
-        topBar = { TopBar(toSearch) }
+        topBar = { TopBar(toSearch) },
+        floatingActionButton = {
+            Icon(Icons.Filled.AddCircle, "add dairy",
+                modifier = Modifier.clickable{toNewDairy.invoke()})
+        }
     ) { padding ->
         Box(
             Modifier
@@ -89,6 +95,6 @@ fun DairyRow(dairy: Dairy, toDairyDetail: (id: String?) -> Unit) {
 @Preview
 @Composable
 fun DRow(){
-  val h = HomeScreenState(list = dairyList)
-    HomeScreen(homeScreenState = h, toDairyDetail ={}, toSearch = {} )
+
+
 }

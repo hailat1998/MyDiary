@@ -17,10 +17,10 @@ class HomeScreenViewModel(private val repository: Repository): ViewModel()  {
         fetchDairyData()
     }
 
-     fun fetchDairyData() {
+   private fun fetchDairyData() {
         viewModelScope.launch {
             try {
-                val data = repository.getAllDairy().collect { dairies ->
+               repository.getAllDairy().collect { dairies ->
                     _screenState.value = HomeScreenState(dairies , false)
                 }
             } catch (e: Exception) {

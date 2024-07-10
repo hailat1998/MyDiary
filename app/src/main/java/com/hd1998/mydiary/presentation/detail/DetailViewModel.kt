@@ -21,4 +21,15 @@ class DetailViewModel(private val repository: Repository): ViewModel() {
             }
         }
     }
+
+    fun saveDairy(dairy: Dairy){
+        viewModelScope.launch {
+            repository.updateDairy(dairy)
+        }
+    }
+    fun deleteDairy(dairy: Dairy){
+        viewModelScope.launch {
+            repository.deleteDairy(dairy)
+        }
+    }
 }
