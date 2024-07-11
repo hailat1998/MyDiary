@@ -13,7 +13,8 @@ class DetailViewModel(private val repository: Repository): ViewModel() {
 
     var dairyState by mutableStateOf<Dairy?>(null)
         private set
-
+   var saving by mutableStateOf(false)
+    var deleting by mutableStateOf(false )
     fun getDairy(id: String) {
         viewModelScope.launch {
             repository.getDairyById(id).collect { dairy ->
@@ -23,13 +24,17 @@ class DetailViewModel(private val repository: Repository): ViewModel() {
     }
 
     fun saveDairy(dairy: Dairy){
+        saving = true
         viewModelScope.launch {
             repository.updateDairy(dairy)
         }
+        saving = false
     }
     fun deleteDairy(dairy: Dairy){
+        deleting = true
         viewModelScope.launch {
             repository.deleteDairy(dairy)
         }
+        deleting = false
     }
 }

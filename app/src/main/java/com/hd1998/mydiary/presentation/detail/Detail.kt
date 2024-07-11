@@ -3,6 +3,7 @@ package com.hd1998.mydiary.presentation.detail
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,8 +12,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -26,15 +31,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.hd1998.mydiary.domain.model.Dairy
-import com.hd1998.mydiary.presentation.Destination
-
+import  com.hd1998.mydiary.R
 @Composable
 fun DetailScreen(dairy: MutableState<Dairy?>,
+                 saving : Boolean,
+                 deleting: Boolean,
                  toHome: () -> Unit,
                  onSave: (dairy: Dairy) -> Unit,
                  onDelete: (dairy: Dairy) -> Unit){
@@ -50,7 +62,8 @@ fun DetailScreen(dairy: MutableState<Dairy?>,
         if(dairy.value!!.password != null && !passwordEntered.value ){
      PasswordDialog(dairy = dairy.value!!, passwordEntered = passwordEntered)
         }else{
-            DairyDetailContent(dairy.value!!, onSave = onSave, onDelete = onDelete)
+            DairyDetailContent(dairy.value!!,  saving = saving, deleting = deleting,
+                onSave = onSave, onDelete = onDelete , toHome = toHome)
         }
     }
 }
@@ -68,7 +81,9 @@ fun PasswordDialog( dairy: Dairy, passwordEntered: MutableState<Boolean> ) {
             Text(text = "Enter Password")
         },
         text = {
-            Column {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+              Image(painter = painterResource(id = R.drawable._99105_lock_icon), null,
+                  modifier = Modifier.size(100.dp))
                 TextField(
                     value = password,
                     onValueChange = { password = it },
@@ -96,8 +111,11 @@ fun PasswordDialog( dairy: Dairy, passwordEntered: MutableState<Boolean> ) {
 
 @Composable
 fun DairyDetailContent(dairy: Dairy,
+                       saving : Boolean,
+                       deleting: Boolean,
                        onSave: (dairy: Dairy) -> Unit,
-                       onDelete: (dairy: Dairy) -> Unit){
+                       onDelete: (dairy: Dairy) -> Unit,
+                       toHome: () -> Unit){
     var title by remember { mutableStateOf("") }
     var details by remember { mutableStateOf("") }
     var encryptWithPassword by remember { mutableStateOf(false) }
@@ -106,6 +124,8 @@ fun DairyDetailContent(dairy: Dairy,
     var isValidPassword by remember { mutableStateOf(false) }
     var isValidTitle by remember { mutableStateOf(false) }
     var isValidText by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
 
     Column(
         modifier = Modifier
@@ -132,7 +152,7 @@ fun DairyDetailContent(dairy: Dairy,
             label = { Text("Details") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp),
+                .height(200.dp),
             maxLines = 15        )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -179,18 +199,31 @@ fun DairyDetailContent(dairy: Dairy,
         ) {
             Button(onClick = {
                 onSave.invoke(Dairy(title = title, text = details, password = if (encryptWithPassword) password else null))
+                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
             },
-                enabled = isValidText && isValidTitle && isValidPassword) {
-                Text("Save")
-            }
-            Button(onClick = { onDelete.invoke(dairy) }) {
-                Text("Delete")
-            }
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B8D14)),
+                enabled = isValidText && isValidTitle && (isValidPassword || !encryptWithPassword),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                if(saving){
+                  CircularProgressIndicator()
+                }else{
+                     Text("Save", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                 }
+             }
+            Button(onClick = { onDelete.invoke(dairy)
+                             toHome.invoke()},
+                colors = ButtonDefaults.buttonColors(containerColor =Color(0xFF75221A)),
+                shape = RoundedCornerShape(10.dp)) {
+               if(deleting){
+                   CircularProgressIndicator()
+               }else{
+                    Text("Delete", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                }
+              }
         }
     }
-
-
-        }
+}
 
 
 
@@ -200,9 +233,9 @@ fun Detail(){
   val d = Dairy(
       title = "Sample Title",
       text = "This is a sample text for the dairy entry.",
-      password = "samplePassword123" // Optional field, can be null
+      password = null // Optional field, can be null
   )
- //  DetailScreen(dairy = mutableStateOf(d))
+   DetailScreen(dairy = mutableStateOf(d), true, true, {},{},{})
 }
 
 

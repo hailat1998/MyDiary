@@ -52,7 +52,7 @@ fun App(navController: NavHostController){
           val dairy = remember {
               mutableStateOf(viewModel.dairyState)
           }
-          DetailScreen(dairy = dairy, onSave = viewModel::saveDairy, onDelete = viewModel::deleteDairy, toHome =  {
+          DetailScreen(dairy = dairy, saving = viewModel.saving, deleting = viewModel.deleting, onSave = viewModel::saveDairy, onDelete = viewModel::deleteDairy, toHome =  {
               navController.navigateSingleTopTo(Destination.Home.route)
           }  )
       }
