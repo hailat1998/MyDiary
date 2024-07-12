@@ -1,7 +1,8 @@
 package com.hd1998.mydiary.data.repository
 
-import com.hd1998.mydiary.data.local.doa.DairyDao
-import com.hd1998.mydiary.domain.model.Dairy
+import android.util.Log
+import com.hd1998.mydiary.data.local.doa.DiaryDao
+import com.hd1998.mydiary.domain.model.Diary
 import com.hd1998.mydiary.domain.repository.Repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -9,53 +10,57 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
-class RepositoryImp(private val dairyDao: DairyDao) : Repository {
-    override fun getAllDairy(): Flow<List<Dairy>> {
+class RepositoryImp(private val dairyDao: DiaryDao) : Repository {
+    override fun getAllDiary(): Flow<List<Diary>> {
         return try {
-            dairyDao.getAllDairy()
+            dairyDao.getAllDiary()
         } catch (e: Exception) {
             println(e)
             emptyFlow()
         }
     }
 
-    override fun searchDairy(query: String): Flow<List<Dairy>?> {
+    override fun searchDiary(query: String): Flow<List<Diary>?> {
         return try {
-            dairyDao.searchDairy("%$query%")
+            Log.i("FromRepo", query)
+            dairyDao.searchDiary("%$query%")
+
         } catch (e: Exception) {
             println(e)
             flowOf(null)
         }
     }
 
-    override  suspend fun getDairyById(id: String): Flow<Dairy?> {
+    override  suspend fun getDiaryById(id: String): Flow<Diary?> {
         return flow {
-            emit(dairyDao.getDairyById(id))
+            emit(dairyDao.getDiaryById(id))
         }.catch { e ->
             println(e)
             emit(null) // Emit null in case of an exception
         }
     }
 
-    override suspend fun updateDairy(dairy: Dairy) {
+    override suspend fun updateDiary(dairy: Diary) {
         try {
-            dairyDao.updateDairy(dairy)
+            dairyDao.updateDiary(dairy)
         } catch (e: Exception) {
             println(e)
         }
     }
 
-    override suspend fun deleteDairy(dairy: Dairy) {
+    override suspend fun deleteDiary(dairy: Diary) {
         try {
-            dairyDao.deleteDairy(dairy)
+            dairyDao.deleteDiary(dairy)
         } catch (e: Exception) {
             println(e)
         }
     }
 
-    override suspend fun insertDairy(dairy: Dairy) {
+    override suspend fun insertDiary(dairy: Diary) {
         try {
-            dairyDao.insertDairy(dairy)
+
+            dairyDao.insertDiary(dairy)
+            println("data inserted")
         } catch (e: Exception) {
            println(e)
         }

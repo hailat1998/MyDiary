@@ -9,21 +9,29 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.ProgressIndicatorDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,45 +39,53 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import com.hd1998.mydiary.domain.model.Dairy
-import  com.hd1998.mydiary.R
+import com.hd1998.mydiary.R
+import com.hd1998.mydiary.domain.model.Diary
+import com.hd1998.mydiary.presentation.theme.MyDiaryTheme
+
 @Composable
-fun DetailScreen(dairy: MutableState<Dairy?>,
-                 saving : Boolean,
-                 deleting: Boolean,
-                 toHome: () -> Unit,
-                 onSave: (dairy: Dairy) -> Unit,
-                 onDelete: (dairy: Dairy) -> Unit){
+fun DetailScreen(
+    dairy: Diary?,
+    saving: Boolean,
+    deleting: Boolean,
+    toHome: () -> Unit,
+    onSave: (dairy: Diary) -> Unit,
+    onDelete: (dairy: Diary) -> Unit) {
     BackHandler {
         toHome.invoke()
     }
-    if(dairy.value == null){
-        Box(contentAlignment = Alignment.Center){
-            CircularProgressIndicator()
-        }
-    }else{
-        val passwordEntered = remember { mutableStateOf(false) }
-        if(dairy.value!!.password != null && !passwordEntered.value ){
-     PasswordDialog(dairy = dairy.value!!, passwordEntered = passwordEntered)
-        }else{
-            DairyDetailContent(dairy.value!!,  saving = saving, deleting = deleting,
-                onSave = onSave, onDelete = onDelete , toHome = toHome)
+    Surface(modifier = Modifier.fillMaxSize()) {
+        if (dairy == null) {
+            Box(contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            val passwordEntered = remember { mutableStateOf(false) }
+            if (dairy.password != null && !passwordEntered.value) {
+                PasswordDialog(diary = dairy, passwordEntered = passwordEntered)
+            } else {
+                DairyDetailContent(
+                    dairy , saving = saving, deleting = deleting,
+                    onSave = onSave, onDelete = onDelete, toHome = toHome
+                )
+            }
         }
     }
 }
-
 @Composable
-fun PasswordDialog( dairy: Dairy, passwordEntered: MutableState<Boolean> ) {
+fun PasswordDialog( diary: Diary, passwordEntered: MutableState<Boolean> ) {
     var password by remember { mutableStateOf("") }
      val context = LocalContext.current
 
@@ -95,7 +111,7 @@ fun PasswordDialog( dairy: Dairy, passwordEntered: MutableState<Boolean> ) {
         confirmButton = {
             Button(
                 onClick = {
-                    if (password == dairy.password) {
+                    if (password == diary.password) {
                         passwordEntered.value = true
                     }else{
                        Toast.makeText(context, "Password Doesn't match", Toast.LENGTH_SHORT).show() 
@@ -110,27 +126,34 @@ fun PasswordDialog( dairy: Dairy, passwordEntered: MutableState<Boolean> ) {
 
 
 @Composable
-fun DairyDetailContent(dairy: Dairy,
+fun DairyDetailContent(diary: Diary,
                        saving : Boolean,
                        deleting: Boolean,
-                       onSave: (dairy: Dairy) -> Unit,
-                       onDelete: (dairy: Dairy) -> Unit,
+                       onSave: (dairy: Diary) -> Unit,
+                       onDelete: (dairy: Diary) -> Unit,
                        toHome: () -> Unit){
-    var title by remember { mutableStateOf("") }
-    var details by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(diary.title) }
+    var details by remember { mutableStateOf(diary.text) }
     var encryptWithPassword by remember { mutableStateOf(false) }
-    var password by remember { mutableStateOf("") }
-    var password2 by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf(diary.password?: "") }
+    var password2 by remember { mutableStateOf(diary.password?: "") }
     var isValidPassword by remember { mutableStateOf(false) }
     var isValidTitle by remember { mutableStateOf(false) }
     var isValidText by remember { mutableStateOf(false) }
+    var submitted by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(10.dp),
+        verticalArrangement = Arrangement.Center
     ) {
         OutlinedTextField(
             value = title,
@@ -139,10 +162,15 @@ fun DairyDetailContent(dairy: Dairy,
             },
             label = { Text("Title") },
 
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+            textStyle = TextStyle(fontWeight = FontWeight.Bold,
+                fontSize = 20.sp),
+            isError = submitted && !isValidTitle,
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor =   Color(0xFF74504A)),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(50.dp))
 
 
         OutlinedTextField(
@@ -152,8 +180,15 @@ fun DairyDetailContent(dairy: Dairy,
             label = { Text("Details") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp),
-            maxLines = 15        )
+                .height(400.dp),
+            textStyle = TextStyle(fontWeight = FontWeight.Medium,
+                fontSize = 16.sp),
+            maxLines = 20    ,
+            isError = submitted && !isValidText,
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor =   Color(0xFF74504A)),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+            //keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            )
 
         Spacer(modifier = Modifier.height(15.dp))
 
@@ -176,7 +211,10 @@ fun DairyDetailContent(dairy: Dairy,
                     onValueChange = { password = it },
                     label = { Text("Password") },
                     visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = submitted && !isValidPassword && encryptWithPassword,
+                    shape = RoundedCornerShape(20.dp),
+                    leadingIcon = { Icon(painter = painterResource(id = R.drawable.baseline_key_24), null) }
                 )
                 TextField(
                     value = password2,
@@ -184,9 +222,11 @@ fun DairyDetailContent(dairy: Dairy,
                         isValidPassword = password == password2},
                     label = { Text("Confirm password") },
                     visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = submitted && !isValidPassword && encryptWithPassword,
+                    shape = RoundedCornerShape(20.dp),
+                    leadingIcon = { Icon(painter = painterResource(id = R.drawable.baseline_key_24), null) }
                 )
-
             }
         }
 
@@ -198,25 +238,30 @@ fun DairyDetailContent(dairy: Dairy,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(onClick = {
-                onSave.invoke(Dairy(title = title, text = details, password = if (encryptWithPassword) password else null))
-                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+               submitted = true
+                if(isValidText && isValidPassword && isValidText){
+                    onSave.invoke(Diary(title = title, text = details, password = if (encryptWithPassword) password else null))
+                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(context, "fill everything right", Toast.LENGTH_SHORT).show()
+                }
             },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B8D14)),
                 enabled = isValidText && isValidTitle && (isValidPassword || !encryptWithPassword),
                 shape = RoundedCornerShape(10.dp)
             ) {
                 if(saving){
-                  CircularProgressIndicator()
+                  CircularProgressIndicator(color = Color(0xFF74504A))
                 }else{
                      Text("Save", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                  }
              }
-            Button(onClick = { onDelete.invoke(dairy)
+            Button(onClick = { onDelete.invoke(diary)
                              toHome.invoke()},
                 colors = ButtonDefaults.buttonColors(containerColor =Color(0xFF75221A)),
                 shape = RoundedCornerShape(10.dp)) {
                if(deleting){
-                   CircularProgressIndicator()
+                   CircularProgressIndicator(color = Color(0xFF74504A))
                }else{
                     Text("Delete", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
@@ -230,12 +275,21 @@ fun DairyDetailContent(dairy: Dairy,
 @Preview
 @Composable
 fun Detail(){
-  val d = Dairy(
+
+
+  val d :Diary? = Diary(
       title = "Sample Title",
       text = "This is a sample text for the dairy entry.",
-      password = null // Optional field, can be null
+      password = "1234" // Optional field, can be null
   )
-   DetailScreen(dairy = mutableStateOf(d), true, true, {},{},{})
+
+
+    MyDiaryTheme {
+        Surface(onClick = { /*TODO*/ }) {
+            DetailScreen(dairy =d, false, false, {},{},{})
+        }
+    }
+
 }
 
 

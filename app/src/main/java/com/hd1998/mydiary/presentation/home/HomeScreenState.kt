@@ -1,10 +1,9 @@
 package com.hd1998.mydiary.presentation.home
 
-import androidx.compose.foundation.ScrollState
-import com.hd1998.mydiary.domain.model.Dairy
+import com.hd1998.mydiary.domain.model.Diary
 
 data class HomeScreenState(
-    val list : List<Dairy> = emptyList() ,
+    val list : List<Diary> = emptyList(),
     val loading: Boolean = false,
     val error: String = ""
     )
