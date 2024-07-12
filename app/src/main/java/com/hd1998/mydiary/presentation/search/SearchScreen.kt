@@ -1,4 +1,3 @@
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,11 +31,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hd1998.mydiary.diaryList
 import com.hd1998.mydiary.domain.model.Diary
-import com.hd1998.mydiary.presentation.theme.MyDiaryTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,7 +48,6 @@ fun SearchScreen(list: List<Diary> , toHome :() -> Unit, toDetail: (id : String)
     }
 
     Surface {
-
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 title = {
@@ -60,8 +55,7 @@ fun SearchScreen(list: List<Diary> , toHome :() -> Unit, toDetail: (id : String)
                         value = query,
                         onValueChange = {
                             query = it
-                            search.invoke(query.toString())
-                            Log.i("From", "HANDLED SEARCH ${query.toString()}")
+                            search.invoke(query)
                         },
                         placeholder = { Text("Search...") },
                         modifier = Modifier
@@ -115,10 +109,3 @@ fun SearchScreen(list: List<Diary> , toHome :() -> Unit, toDetail: (id : String)
     }
 
 
-@Preview
-@Composable
-fun S() {
-    MyDiaryTheme {
-        SearchScreen(list = diaryList, toHome = { /*TODO*/ }, toDetail = {}, search = {} )
-    }
-}

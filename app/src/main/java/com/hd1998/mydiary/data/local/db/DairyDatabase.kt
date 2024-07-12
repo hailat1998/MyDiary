@@ -7,7 +7,7 @@ import com.hd1998.mydiary.data.local.doa.DiaryDao
 import com.hd1998.mydiary.domain.model.Diary
 
 @Database(entities = [Diary::class] , version = 1)
-@TypeConverters(value = [DaieryConverter::class])
+@TypeConverters(value = [DiaryConverter::class])
 abstract class DiaryDatabase : RoomDatabase() {
     abstract fun dairyDao() : DiaryDao
 }

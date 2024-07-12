@@ -36,7 +36,7 @@ fun App(navController: NavHostController){
         HomeScreen(homeScreenState = homeScreenState,
             toDiaryDetail = { id ->
                 Log.i("NAV", id!!)
-        navController.navigateSingleTopTo(Destination.Detail.route+"/${id}")
+        navController.navigateSingleTopTo(Destination.Detail.route.plus("/${id}"))
                             },
             toNewDiary = {
                 navController.navigateSingleTopTo(Destination.NewDetail.route)
@@ -46,14 +46,14 @@ fun App(navController: NavHostController){
             })
     }
 
-      composable(Destination.Detail.route,
+      composable(Destination.Detail.route.plus("/{id}"),
           arguments = listOf(navArgument("id") { type = NavType.StringType })){ backStackEntry ->
           val id = backStackEntry.arguments?.getString("id")
           val viewModel = koinViewModel<DetailViewModel>()
-          viewModel.getDiary(id!!)
-          val dairy = viewModel.dairyState
+          id?.let { viewModel.getDiary(it) }
+          val dairy by viewModel.dairyState.collectAsState()
           DetailScreen(dairy = dairy, saving = viewModel.saving, deleting = viewModel.deleting,
-              onSave = viewModel::saveDiary, onDelete = viewModel::deleteDiary, toHome =  {
+              onSave = viewModel::updateDiary, onDelete = viewModel::deleteDiary, toHome =  {
               navController.navigateSingleTopTo(Destination.Home.route)
           }
           )
@@ -65,15 +65,15 @@ fun App(navController: NavHostController){
               SearchScreen(list = list, toHome = { navController.navigateSingleTopTo(Destination.Home.route) },
                   toDetail = {id ->
                       navController.navigateSingleTopTo(Destination.Detail.route + "/${id}")}, search = viewModel::search)
-      }
+              }
 
       composable(Destination.NewDetail.route){
           val viewModel= koinViewModel<DetailViewModel>()
       DiaryNewDetailContent(onSave = viewModel::saveDiary , saving = viewModel.saving, toHome = {
           navController.navigateSingleTopTo(Destination.Home.route)
-      }
-      )
-      }
+             }
+          )
+       }
   }
 }
 

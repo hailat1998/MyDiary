@@ -40,26 +40,26 @@ class RepositoryImp(private val dairyDao: DiaryDao) : Repository {
         }
     }
 
-    override suspend fun updateDiary(dairy: Diary) {
+    override suspend fun updateDiary(diary: Diary) {
         try {
-            dairyDao.updateDiary(dairy)
+            dairyDao.updateDiary(diary)
         } catch (e: Exception) {
             println(e)
         }
     }
 
-    override suspend fun deleteDiary(dairy: Diary) {
+    override suspend fun deleteDiary(diary: Diary) {
         try {
-            dairyDao.deleteDiary(dairy)
+            dairyDao.deleteDiary(diary)
         } catch (e: Exception) {
             println(e)
         }
     }
 
-    override suspend fun insertDiary(dairy: Diary) {
+    override suspend fun insertDiary(diary: Diary) {
         try {
 
-            dairyDao.insertDiary(dairy)
+            dairyDao.insertDiary(diary)
             println("data inserted")
         } catch (e: Exception) {
            println(e)

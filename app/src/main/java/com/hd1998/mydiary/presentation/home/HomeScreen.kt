@@ -1,5 +1,7 @@
 package com.hd1998.mydiary.presentation.home
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +19,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -28,15 +31,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hd1998.mydiary.R
-import com.hd1998.mydiary.diaryList
 import com.hd1998.mydiary.domain.model.Diary
-import com.hd1998.mydiary.presentation.theme.MyDiaryTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -48,7 +49,11 @@ fun HomeScreen(
     toSearch: () -> Unit
 ) {
     val lazyListState = rememberLazyListState()
+    val context = LocalContext.current as Activity
 
+    BackHandler {
+        context.finish()
+    }
     Scaffold(
         topBar = { TopBar(toSearch) },
         floatingActionButton = {
@@ -87,11 +92,13 @@ fun TopBar(toSearch: () -> Unit) {
     TopAppBar(
         title = { Text(text = "My Diaries", fontWeight = FontWeight.Bold) },
         actions = {
-            IconButton(onClick = { toSearch() }) {
+            Button(onClick = { toSearch() }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search",
              modifier = Modifier
-                 .size(100.dp)
-                 .padding(end = 18.dp))
+                 .size(65.dp)
+                 .padding(end = 18.dp),
+                    tint = Color.White
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -124,13 +131,4 @@ fun DiaryRow(diary: Diary, toDiaryDetail: (id: String?) -> Unit) {
                 modifier = Modifier.padding(top = 15.dp, end= 10.dp))
         }
     }
-}
-@Preview
-@Composable
-fun DRow(){
-   val j = HomeScreenState(list = diaryList)
-    MyDiaryTheme {
-      HomeScreen(homeScreenState = j, toDiaryDetail = {} , toNewDiary = { /*TODO*/ }, toSearch =  {})
-    }
-
 }
