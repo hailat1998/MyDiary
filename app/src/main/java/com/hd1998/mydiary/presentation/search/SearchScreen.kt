@@ -98,7 +98,7 @@ fun SearchScreen(list: List<Diary> , toHome :() -> Unit, toDetail: (id : String)
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
                 .clickable { toDetail.invoke(dairy.id) },
-                colors = CardDefaults.cardColors(containerColor = Color.Gray)
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFA79F9E))
         ) {
             Text(
                 text = dairy.title,

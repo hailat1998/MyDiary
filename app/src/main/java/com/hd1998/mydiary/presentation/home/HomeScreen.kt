@@ -59,7 +59,8 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { toNewDiary() },
-                containerColor = Color(0xFF3E2723)
+                containerColor = Color(0xFF6F5753),
+                modifier = Modifier.padding(end = 20.dp, bottom = 30.dp)
             ) {
                 Icon(
                     Icons.Default.Add,
@@ -95,14 +96,14 @@ fun TopBar(toSearch: () -> Unit) {
             Button(onClick = { toSearch() }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search",
              modifier = Modifier
-                 .size(65.dp)
+                 .size(60.dp)
                  .padding(end = 18.dp),
-                    tint = Color.White
+                    tint = Color.Black
                 )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFF74504A) // Dark brown color
+            containerColor = Color(0xFF6F5753)
         )
     )
 }
@@ -117,7 +118,7 @@ fun DiaryRow(diary: Diary, toDiaryDetail: (id: String?) -> Unit) {
             .fillMaxWidth()
             .clickable { toDiaryDetail(diary.id) }
             .padding(8.dp)
-            .background(Color.Gray, RoundedCornerShape(10.dp)),
+            .background(Color(0xFFA79F9E), RoundedCornerShape(10.dp)),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {

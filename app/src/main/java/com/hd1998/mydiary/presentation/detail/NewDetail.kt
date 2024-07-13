@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,12 +18,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.Diary
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryNewDetailContent(
     saving: Boolean,
@@ -62,137 +67,164 @@ fun DiaryNewDetailContent(
     val context = LocalContext.current
 
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            item {
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = {
-                        title = it
-                        isValidTitle = it.isNotEmpty()
-                    },
-                    label = { Text("Title") },
-
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    ),
-                    isError = submitted && !isValidTitle,
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF74504A))
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("New Diary", fontWeight = FontWeight.Bold)
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF6F5753)
                 )
-
-                Spacer(modifier = Modifier.height(50.dp))
-
-
-                OutlinedTextField(
-                    value = details,
-                    onValueChange = {
-                        details = it
-                        isValidText = it.isNotEmpty()
-                    },
-                    label = { Text("Details") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(400.dp),
-                    maxLines = 15,
-                    textStyle = TextStyle(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    ),
-                    isError = submitted && !isValidText,
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF74504A))
-                )
-
-                Spacer(modifier = Modifier.height(15.dp))
-
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = encryptWithPassword,
-                        onCheckedChange = { encryptWithPassword = it }
-                    )
-                    Text("Encrypt with password")
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                AnimatedVisibility(visible = encryptWithPassword) {
-                    Column {
-                        TextField(
-                            value = password,
-                            onValueChange = { password = it },
-                            label = { Text("Password") },
-                            visualTransformation = PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth().padding(12.dp),
-                            isError = submitted && !isValidPassword && encryptWithPassword,
-                            shape = RoundedCornerShape(20.dp),
-                            leadingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.baseline_key_24),
-                                    null
-                                )
-                            }
-                        )
-                        TextField(
-                            value = password2,
-                            onValueChange = {
-                                password2 = it
-                                isValidPassword = password == password2
-                            },
-                            label = { Text("Confirm password") },
-                            visualTransformation = PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth().padding(12.dp),
-                            isError = submitted && !isValidPassword && encryptWithPassword,
-                            shape = RoundedCornerShape(20.dp),
-                            leadingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.baseline_key_24),
-                                    null
-                                )
-                            }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        onClick = {
-                            submitted = true
-                            if (isValidText && (isValidPassword || !encryptWithPassword) && isValidTitle) {
-                                onSave.invoke(
-                                    Diary(
-                                        title = title,
-                                        text = details,
-                                        password = if (encryptWithPassword) password else null
-                                    )
-                                )
-                                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "fill everything right", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
+            )
+        }
+    ) {
+        Box(Modifier.fillMaxSize().padding(it)) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                item {
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = {
+                            title = it
+                            isValidTitle = it.isNotEmpty()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B8D14)),
-                        enabled = isValidText && isValidTitle && (isValidPassword || !encryptWithPassword),
-                        shape = RoundedCornerShape(10.dp)
+                        label = { Text("Title") },
+
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        ),
+                        isError = submitted && !isValidTitle,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(
+                                0xFF74504A
+                            )
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(50.dp))
+
+
+                    OutlinedTextField(
+                        value = details,
+                        onValueChange = {
+                            details = it
+                            isValidText = it.isNotEmpty()
+                        },
+                        label = { Text("Details") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp),
+                        maxLines = 15,
+                        textStyle = TextStyle(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp
+                        ),
+                        isError = submitted && !isValidText,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(
+                                0xFF74504A
+                            )
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(15.dp))
+
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (saving) {
-                            CircularProgressIndicator(color = Color(0xFF74504A))
-                        } else {
-                            Text("Save", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        Checkbox(
+                            checked = encryptWithPassword,
+                            onCheckedChange = { encryptWithPassword = it }
+                        )
+                        Text("Encrypt with password")
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    AnimatedVisibility(visible = encryptWithPassword) {
+                        Column {
+                            TextField(
+                                value = password,
+                                onValueChange = { password = it },
+                                label = { Text("Password") },
+                                visualTransformation = PasswordVisualTransformation(),
+                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                isError = submitted && !isValidPassword && encryptWithPassword,
+                                shape = RoundedCornerShape(20.dp),
+                                leadingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_key_24),
+                                        null
+                                    )
+                                }
+                            )
+                            TextField(
+                                value = password2,
+                                onValueChange = {
+                                    password2 = it
+                                    isValidPassword = password == password2
+                                },
+                                label = { Text("Confirm password") },
+                                visualTransformation = PasswordVisualTransformation(),
+                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                isError = submitted && !isValidPassword && encryptWithPassword,
+                                shape = RoundedCornerShape(20.dp),
+                                leadingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_key_24),
+                                        null
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = {
+                                submitted = true
+                                if (isValidText && (isValidPassword || !encryptWithPassword) && isValidTitle) {
+                                    onSave.invoke(
+                                        Diary(
+                                            title = title,
+                                            text = details,
+                                            password = if (encryptWithPassword) password else null
+                                        )
+                                    )
+                                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                                    toHome.invoke()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "fill everything right",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B8D14)),
+                            enabled = isValidText && isValidTitle && (isValidPassword || !encryptWithPassword),
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.padding(start = 20.dp, bottom = 50.dp)
+                        ) {
+                            if (saving) {
+                                CircularProgressIndicator(color = Color(0xFF74504A))
+                            } else {
+                                Text("Save", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                            }
                         }
                     }
                 }
@@ -200,4 +232,5 @@ fun DiaryNewDetailContent(
         }
     }
 }
+
 

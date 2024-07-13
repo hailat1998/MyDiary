@@ -24,12 +24,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -132,6 +136,7 @@ fun PasswordDialog( diary: Diary, passwordEntered: MutableState<Boolean> ,  toHo
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DairyDetailContent(diary: Diary,
                        saving : Boolean,
@@ -156,6 +161,18 @@ fun DairyDetailContent(diary: Diary,
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
+
+
+    Scaffold(
+        topBar = { TopAppBar(title = {Text("Diary Details", fontWeight = FontWeight.Bold)
+        },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color(0xFF6F5753) // Dark brown color
+            )
+        )
+        }
+    ) {
+        Box(Modifier.fillMaxSize().padding(it)){
 
     LazyColumn(
         modifier = Modifier
@@ -319,6 +336,7 @@ fun DairyDetailContent(diary: Diary,
                                 diary
                             )
                             Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                            toHome.invoke()
                         } else {
                             Toast.makeText(context, "fill everything right", Toast.LENGTH_SHORT)
                                 .show()
@@ -327,7 +345,7 @@ fun DairyDetailContent(diary: Diary,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B8D14)),
                     enabled = isValidText && isValidTitle && (isValidPassword || !encryptWithPassword),
                     shape = RoundedCornerShape(10.dp),
-
+                    modifier = Modifier.padding(start = 20.dp, bottom = 50.dp)
                 ) {
                     if (saving) {
                         CircularProgressIndicator(color = Color(0xFF74504A))
@@ -341,7 +359,8 @@ fun DairyDetailContent(diary: Diary,
                         toHome.invoke()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF75221A)),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.padding(end = 20.dp, bottom = 50.dp)
                 ) {
                     if (deleting) {
                         CircularProgressIndicator(color = Color(0xFF74504A))
@@ -351,6 +370,8 @@ fun DairyDetailContent(diary: Diary,
                 }
             }
         }
+    }
+}
     }
 }
 
