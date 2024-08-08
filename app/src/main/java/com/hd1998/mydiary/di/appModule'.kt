@@ -2,6 +2,8 @@ package com.hd1998.mydiary.di
 
 import androidx.room.Room
 import com.hd1998.mydiary.data.local.db.DiaryDatabase
+import com.hd1998.mydiary.data.local.db.MIGRATION_1_2
+import com.hd1998.mydiary.data.local.db.MIGRATION_2_3
 import com.hd1998.mydiary.data.repository.RepositoryImp
 import com.hd1998.mydiary.domain.repository.Repository
 import com.hd1998.mydiary.presentation.detail.DetailViewModel
@@ -21,7 +23,7 @@ val appModule = module {
            androidApplication(),
            DiaryDatabase::class.java,
            DB
-       ).build()
+       ).addMigrations( MIGRATION_1_2 ,MIGRATION_2_3).build()
    }
     single { get<DiaryDatabase>().dairyDao() }
     single <Repository>{ RepositoryImp(get()) }

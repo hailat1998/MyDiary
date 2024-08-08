@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -51,6 +52,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    defaultConfig {
+        testInstrumentationRunner ="androidx.test.runner.AndroidJUnitRunner"
+    }
 }
 
 dependencies {
@@ -63,6 +67,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.runner)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -73,7 +79,11 @@ dependencies {
     implementation(libs.koin.android)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+    testImplementation(libs.androidx.room.testing)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.koin.androidx.compose)
     implementation(libs.coil.compose)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation (libs.core.testing)
+    implementation(libs.firebase.bom)
 }

@@ -1,5 +1,6 @@
 package com.hd1998.mydiary.data.repository
 
+import android.util.Log
 import com.hd1998.mydiary.data.local.doa.DiaryDao
 import com.hd1998.mydiary.domain.model.Diary
 import com.hd1998.mydiary.domain.repository.Repository
@@ -58,7 +59,7 @@ class RepositoryImp(private val dairyDao: DiaryDao) : Repository {
         try {
 
             dairyDao.insertDiary(diary)
-
+            Log.i("FROM_REPO", "inserted")
         } catch (e: Exception) {
            println(e)
         }
