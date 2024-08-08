@@ -69,6 +69,10 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.runner)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.paging.compose.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -86,4 +90,5 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation (libs.core.testing)
     implementation(libs.firebase.bom)
+    implementation(libs.androidx.paging.runtime)
 }

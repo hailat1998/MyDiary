@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +38,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.Diary
 import java.text.SimpleDateFormat
@@ -43,7 +47,7 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
-    homeScreenState: HomeScreenState,
+    diaries: LazyPagingItems<Diary>,
     toDiaryDetail: (id: String?) -> Unit,
     toNewDiary: () -> Unit,
     toSearch: () -> Unit
@@ -75,12 +79,21 @@ fun HomeScreen(
         Box(
             Modifier
                 .padding(padding)
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
+            if(diaries.loadState.refresh is LoadState.Loading){
+                CircularProgressIndicator()
+            }else if(diaries.itemCount == 0){
+                Text(text = "No diary found, create new by taping on the + button below ")
+            }else
             LazyColumn(state = lazyListState) {
-                itemsIndexed(homeScreenState.list, key = { _, item -> item.id }) { _, item ->
-                    DiaryRow(diary = item, toDiaryDetail = toDiaryDetail)
-                }
+               items(diaries.itemCount){ index->
+                   val diary = diaries[index]
+                   diary?.let{
+                       DiaryRow(diary = diary, toDiaryDetail = toDiaryDetail)
+                   }
+               }
             }
         }
     }

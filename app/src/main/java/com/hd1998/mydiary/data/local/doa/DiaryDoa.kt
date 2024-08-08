@@ -1,8 +1,10 @@
 package com.hd1998.mydiary.data.local.doa
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.hd1998.mydiary.domain.model.Diary
@@ -17,7 +19,7 @@ interface DiaryDao {
      fun searchDiary(query: String): Flow<List<Diary>?>
 
     @Query("SELECT * FROM Diary")
-    fun getAllDiary(): Flow<List<Diary>>
+    fun getAllDiary(): PagingSource<Int, Diary>
 
     @Insert
     suspend fun insertDiary(dairy: Diary)
@@ -28,4 +30,9 @@ interface DiaryDao {
     @Delete
     suspend fun deleteDiary(dairy: Diary)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(data: List<Diary>)
+
+    @Query("DELETE FROM Diary")
+    suspend fun clearAll()
 }

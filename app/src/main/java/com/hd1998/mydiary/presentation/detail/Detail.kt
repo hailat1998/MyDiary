@@ -60,8 +60,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.Diary
+import kotlinx.coroutines.tasks.await
+import org.koin.compose.getKoin
+import org.koin.compose.koinInject
 import java.util.Date
 
 @Composable
@@ -172,7 +176,10 @@ fun DairyDetailContent(diary: Diary,
         )
         }
     ) {
-        Box(Modifier.fillMaxSize().padding(it)){
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(it)){
 
     LazyColumn(
         modifier = Modifier
@@ -373,9 +380,33 @@ fun DairyDetailContent(diary: Diary,
     }
 }
     }
+
 }
 
 
+@Composable
+fun SaveToFirebase(diary: Diary, firestore: FirebaseFirestore = koinInject()){
+    firestore.collection("diary-hd").add(diary)
+}
 
 
+@Composable
+fun DeleteFirebase(diary: Diary, firestore: FirebaseFirestore = koinInject()){
+    firestore.collection("diary-hd").document(diary.id)
+        .delete()
+}
 
+@Composable
+fun UpdateFirebase(diary: Diary, firestore: FirebaseFirestore = koinInject()){
+    val query = firestore.collection("diary-hd").document(diary.id)
+
+    val password = if (diary.password != null) diary.password else ""
+
+    val updates = hashMapOf<String, Any>(
+        "password" to password!!,
+        "text" to diary.text,
+        "title" to diary.title,
+        "date" to diary.date.time
+    )
+    query.update(updates)
+}

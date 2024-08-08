@@ -10,6 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.hd1998.mydiary.presentation.detail.DiaryNewDetailContent
 import com.hd1998.mydiary.presentation.detail.DetailScreen
 import com.hd1998.mydiary.presentation.detail.DetailViewModel
@@ -32,8 +33,8 @@ fun App(navController: NavHostController){
 
     composable(Destination.Home.route) {
         val viewModel = koinViewModel<HomeScreenViewModel>()
-        val homeScreenState by viewModel.screenState.collectAsState()
-        HomeScreen(homeScreenState = homeScreenState,
+         val diaries = viewModel.loadWithPaging().collectAsLazyPagingItems()
+        HomeScreen(diaries,
             toDiaryDetail = { id ->
                 Log.i("NAV", id!!)
         navController.navigateSingleTopTo(Destination.Detail.route.plus("/${id}"))
@@ -44,6 +45,7 @@ fun App(navController: NavHostController){
             toSearch = {
             navController.navigateSingleTopTo(Destination.Search.route)
             })
+
     }
 
       composable(Destination.Detail.route.plus("/{id}"),
