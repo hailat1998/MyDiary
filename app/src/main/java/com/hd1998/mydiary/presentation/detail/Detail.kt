@@ -378,7 +378,7 @@ fun DairyDetailContent(diary: Diary,
             }
         }
     }
-}
+ }
     }
 
 }
