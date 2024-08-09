@@ -6,14 +6,16 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.hd1998.mydiary.data.local.doa.DiaryDao
+import com.hd1998.mydiary.data.local.doa.UserDao
 import com.hd1998.mydiary.domain.model.Diary
+import com.hd1998.mydiary.domain.model.User
 
 
-
-@Database(entities = [Diary::class] , version = 3)
+@Database(entities = [Diary::class, User::class] , version = 4)
 @TypeConverters(value = [DiaryConverter::class])
 abstract class DiaryDatabase : RoomDatabase() {
     abstract fun dairyDao() : DiaryDao
+    abstract fun userDao(): UserDao
 }
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -69,4 +71,21 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
 
         db.execSQL("ALTER TABLE Diary_new RENAME TO Diary")
     }
+}
+
+
+val MIGRATION_3_4 = object : Migration(3,4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+       db.execSQL(
+           """
+               CREATE TABLE User(
+                id TEXT PRIMARY KEY NOT NULL,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                date INTEGER NOT NULL
+               )
+           """.trimIndent()
+       )
+    }
+
 }

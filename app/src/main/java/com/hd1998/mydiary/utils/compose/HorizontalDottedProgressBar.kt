@@ -1,4 +1,4 @@
-package com.hd1998.mydiary.presentation.auth
+package com.hd1998.mydiary.utils.compose
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HorizontalDottedProgressBar() {
     val color = MaterialTheme.colorScheme.onPrimary
-    val transition = rememberInfiniteTransition()
+    val transition = rememberInfiniteTransition(label = "hd")
     val state by transition.animateFloat(
         initialValue = 0f,
         targetValue = 6f,

@@ -26,16 +26,34 @@ class MyDiaryRemote(private val firestore: FirebaseFirestore,
                 document.toObject(Diary::class.java)!!.copy(id = document.id)
             }
 
+               val dbData = mutableListOf<Diary>()
+                database.dairyDao().getDiariesLocal().collect{
+                dbData.addAll(it)
+            }
+
+            val allData = (data + dbData).toMutableSet()
+
+            for(diary in dbData){
+                if(!data.contains(diary)){
+                    try {
+                        firestore.collection("diary-hd").document(diary.id).set(diary).await()
+
+                    } catch (e: Exception) {
+                        println("Error adding diary: ${e.message}")
+                    }
+                }
+            }
+
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     database.dairyDao().clearAll()
                 }
-                database.dairyDao().insertAll(data)
+                database.dairyDao().insertAll(allData.toList())
             }
 
             MediatorResult.Success(endOfPaginationReached = data.isEmpty())
         } catch (e: Exception) {
             MediatorResult.Error(e)
         }
-    }
+     }
                     }

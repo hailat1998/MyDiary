@@ -11,6 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.hd1998.mydiary.presentation.auth.AuthViewmodel
+import com.hd1998.mydiary.presentation.auth.AuthWrapper
 import com.hd1998.mydiary.presentation.detail.DiaryNewDetailContent
 import com.hd1998.mydiary.presentation.detail.DetailScreen
 import com.hd1998.mydiary.presentation.detail.DetailViewModel
@@ -20,6 +22,7 @@ import com.hd1998.mydiary.presentation.search.SearchViewModel
 import org.koin.androidx.compose.koinViewModel
 
 sealed class Destination(val route: String){
+    data object Auth: Destination("auth")
     data object Home: Destination("home")
     data object Detail: Destination("detail")
     data object Search : Destination("search")
@@ -29,7 +32,15 @@ sealed class Destination(val route: String){
 
 @Composable
 fun App(navController: NavHostController){
-  NavHost(navController = navController, startDestination = Destination.Home.route){
+  NavHost(navController = navController, startDestination = Destination.Auth.route){
+
+      composable(Destination.Auth.route){
+          val viewModel = koinViewModel<AuthViewmodel>()
+          val shouldLogIn = viewModel.shouldLogIn.collectAsState()
+          AuthWrapper(shouldLogIn) {
+              navController.navigateSingleTopTo(Destination.Home.route)
+          }
+      }
 
     composable(Destination.Home.route) {
         val viewModel = koinViewModel<HomeScreenViewModel>()
@@ -76,7 +87,7 @@ fun App(navController: NavHostController){
              }
           )
        }
-  }
+     }
 }
 
 

@@ -8,8 +8,10 @@ import androidx.paging.PagingData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.data.local.db.DiaryDatabase
 import com.hd1998.mydiary.data.local.doa.DiaryDao
+import com.hd1998.mydiary.data.local.doa.UserDao
 import com.hd1998.mydiary.data.remote.MyDiaryRemote
 import com.hd1998.mydiary.domain.model.Diary
+import com.hd1998.mydiary.domain.model.User
 import com.hd1998.mydiary.domain.repository.Repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class RepositoryImp(private val dairyDao: DiaryDao,
     private val database: DiaryDatabase,
+                    private val userDao: UserDao,
     private val firestore: FirebaseFirestore) : Repository {
 
 
@@ -31,8 +34,20 @@ class RepositoryImp(private val dairyDao: DiaryDao,
         ).flow
     }
 
+    override suspend fun addUser(user: User) {
+        userDao.insertUser(user)
+    }
 
-   override fun getAllDiary(): Flow<List<Diary>> {
+    override suspend fun updateUser(user: User) {
+       userDao.updateUser(user)
+    }
+
+    override suspend fun getUser(id: String): User? {
+       return userDao.getUser(id)
+    }
+
+
+    override fun getAllDiary(): Flow<List<Diary>> {
            return flow{
 
            }

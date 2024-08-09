@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +64,11 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.Diary
+import com.hd1998.mydiary.utils.firebase.deleteFirebase
+import com.hd1998.mydiary.utils.firebase.updateFirebase
+import com.hd1998.mydiary.utils.isInternetAvailable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
@@ -160,6 +166,8 @@ fun DairyDetailContent(diary: Diary,
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
+    val scope = rememberCoroutineScope()
+    val firebaseFirestore = FirebaseFirestore.getInstance()
 
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -339,6 +347,11 @@ fun DairyDetailContent(diary: Diary,
                             diary.text = details
                             diary.password = if(encryptWithPassword) password else null
                             diary.date = Date()
+                            if(isInternetAvailable(context)) {
+                                scope.launch(Dispatchers.IO) {
+                                    updateFirebase(diary, firebaseFirestore)
+                                }
+                            }
                             onSave.invoke(
                                 diary
                             )
@@ -362,6 +375,12 @@ fun DairyDetailContent(diary: Diary,
                 }
                 Button(
                     onClick = {
+                        if(isInternetAvailable(context)){
+                            scope.launch(Dispatchers.IO) {
+
+                                deleteFirebase(diary, firebaseFirestore)
+                            }
+                        }
                         onDelete.invoke(diary)
                         toHome.invoke()
                     },
@@ -384,29 +403,6 @@ fun DairyDetailContent(diary: Diary,
 }
 
 
-@Composable
-fun SaveToFirebase(diary: Diary, firestore: FirebaseFirestore = koinInject()){
-    firestore.collection("diary-hd").add(diary)
-}
 
 
-@Composable
-fun DeleteFirebase(diary: Diary, firestore: FirebaseFirestore = koinInject()){
-    firestore.collection("diary-hd").document(diary.id)
-        .delete()
-}
 
-@Composable
-fun UpdateFirebase(diary: Diary, firestore: FirebaseFirestore = koinInject()){
-    val query = firestore.collection("diary-hd").document(diary.id)
-
-    val password = if (diary.password != null) diary.password else ""
-
-    val updates = hashMapOf<String, Any>(
-        "password" to password!!,
-        "text" to diary.text,
-        "title" to diary.title,
-        "date" to diary.date.time
-    )
-    query.update(updates)
-}

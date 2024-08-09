@@ -29,7 +29,7 @@ import com.hd1998.mydiary.presentation.theme.MyDiaryTheme
 import kotlinx.coroutines.delay
 
 
-private const val SplashWaitTime: Long = 2000
+
 
 
 class MainActivity : ComponentActivity() {
@@ -39,40 +39,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyDiaryTheme {
                 val navController = rememberNavController()
-              BaseContent(navController = navController)
+                App(navController)
             }
         }
     }
 }
 
 
-@Composable
-fun BaseContent(navController: NavHostController){
-    var showSplash by remember { mutableStateOf(true) } // State to track whether to show the splash screen
 
-    LaunchedEffect(key1 = true) {
-        delay(SplashWaitTime)
-        showSplash = false
-    }
 
-    if (showSplash) {
-        SplashScreen()
-    } else {
-        App(navController)
-    }
-}
-
-@Composable
-fun SplashScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.logo),
-            contentDescription = null,
-            modifier = Modifier.wrapContentSize()
-        )
-    }
-}

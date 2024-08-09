@@ -4,8 +4,10 @@ import androidx.room.Room
 import com.hd1998.mydiary.data.local.db.DiaryDatabase
 import com.hd1998.mydiary.data.local.db.MIGRATION_1_2
 import com.hd1998.mydiary.data.local.db.MIGRATION_2_3
+import com.hd1998.mydiary.data.local.db.MIGRATION_3_4
 import com.hd1998.mydiary.data.repository.RepositoryImp
 import com.hd1998.mydiary.domain.repository.Repository
+import com.hd1998.mydiary.presentation.auth.AuthViewmodel
 import com.hd1998.mydiary.presentation.detail.DetailViewModel
 import com.hd1998.mydiary.presentation.home.HomeScreenViewModel
 import com.hd1998.mydiary.presentation.search.SearchViewModel
@@ -23,12 +25,14 @@ val appModule = module {
            androidApplication(),
            DiaryDatabase::class.java,
            DB
-       ).addMigrations( MIGRATION_1_2 ,MIGRATION_2_3).build()
+       ).addMigrations( MIGRATION_1_2 ,MIGRATION_2_3, MIGRATION_3_4).build()
    }
     single { get<DiaryDatabase>().dairyDao() }
-    single <Repository>{ RepositoryImp(get()) }
+    single { get<DiaryDatabase>().userDao() }
+    single <Repository>{ RepositoryImp(get(),get(),get(), get()) }
     single <CoroutineDispatcher>(named("IO")){ Dispatchers.IO }
     viewModel { HomeScreenViewModel(get(), get(named("IO"))) }
     viewModel{ DetailViewModel(get(), get(named("IO")))}
     viewModel{ SearchViewModel(get(), get(named("IO")))}
+    viewModel{ AuthViewmodel(get(), get(named("IO")), get())}
 }

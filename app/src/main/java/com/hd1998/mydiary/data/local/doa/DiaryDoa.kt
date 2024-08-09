@@ -21,6 +21,9 @@ interface DiaryDao {
     @Query("SELECT * FROM Diary")
     fun getAllDiary(): PagingSource<Int, Diary>
 
+    @Query("SELECT * FROM Diary")
+    fun getDiariesLocal(): Flow<List<Diary>>
+
     @Insert
     suspend fun insertDiary(dairy: Diary)
 
