@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.R
+import com.hd1998.mydiary.domain.model.Diary
 import com.hd1998.mydiary.domain.model.User
 import com.hd1998.mydiary.utils.compose.HorizontalDottedProgressBar
 import java.util.Date
@@ -155,7 +156,8 @@ fun SignupScreen(
 
                     val userData = mapOf(
                         "name" to name,
-                        "email" to email
+                        "email" to email,
+                        "diaries" to listOf<Diary>()
                     )
 
                     signUpAndAddUserToFirestore(email = email.text, password = password.text, userData = userData) { success, message ->

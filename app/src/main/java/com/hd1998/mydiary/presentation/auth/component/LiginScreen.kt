@@ -37,7 +37,7 @@ import com.hd1998.mydiary.R
 import com.hd1998.mydiary.utils.compose.HorizontalDottedProgressBar
 
 @Composable
-fun LogIn(toHome: () -> Unit) {
+fun LogInScreen(toHome: () -> Unit) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

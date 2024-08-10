@@ -29,7 +29,7 @@ val appModule = module {
    }
     single { get<DiaryDatabase>().dairyDao() }
     single { get<DiaryDatabase>().userDao() }
-    single <Repository>{ RepositoryImp(get(),get(),get(), get()) }
+    single <Repository>{ RepositoryImp(get(),get(),get(), get(), get(),  get(named("IO")), get()) }
     single <CoroutineDispatcher>(named("IO")){ Dispatchers.IO }
     viewModel { HomeScreenViewModel(get(), get(named("IO"))) }
     viewModel{ DetailViewModel(get(), get(named("IO")))}

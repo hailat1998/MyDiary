@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.Diary
@@ -69,9 +70,6 @@ import com.hd1998.mydiary.utils.firebase.updateFirebase
 import com.hd1998.mydiary.utils.isInternetAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import org.koin.compose.getKoin
-import org.koin.compose.koinInject
 import java.util.Date
 
 @Composable
@@ -168,7 +166,7 @@ fun DairyDetailContent(diary: Diary,
 
     val scope = rememberCoroutineScope()
     val firebaseFirestore = FirebaseFirestore.getInstance()
-
+    val id = FirebaseAuth.getInstance().currentUser?.uid
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -347,9 +345,9 @@ fun DairyDetailContent(diary: Diary,
                             diary.text = details
                             diary.password = if(encryptWithPassword) password else null
                             diary.date = Date()
-                            if(isInternetAvailable(context)) {
+                            if(isInternetAvailable(context) && id != null) {
                                 scope.launch(Dispatchers.IO) {
-                                    updateFirebase(diary, firebaseFirestore)
+                                    updateFirebase(diary, firebaseFirestore, id)
                                 }
                             }
                             onSave.invoke(
@@ -375,10 +373,10 @@ fun DairyDetailContent(diary: Diary,
                 }
                 Button(
                     onClick = {
-                        if(isInternetAvailable(context)){
+                        if(isInternetAvailable(context) && id != null){
                             scope.launch(Dispatchers.IO) {
 
-                                deleteFirebase(diary, firebaseFirestore)
+                                deleteFirebase(diary, firebaseFirestore, id)
                             }
                         }
                         onDelete.invoke(diary)

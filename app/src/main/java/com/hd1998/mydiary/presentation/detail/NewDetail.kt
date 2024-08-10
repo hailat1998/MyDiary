@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,8 +43,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.Diary
+import com.hd1998.mydiary.utils.firebase.updateFirebase
+import com.hd1998.mydiary.utils.isInternetAvailable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +73,10 @@ fun DiaryNewDetailContent(
     var submitted by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    val firestore = FirebaseFirestore.getInstance()
+    val id = FirebaseAuth.getInstance().currentUser?.uid
+
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -79,7 +90,10 @@ fun DiaryNewDetailContent(
             )
         }
     ) {
-        Box(Modifier.fillMaxSize().padding(it)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(it)) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,7 +169,9 @@ fun DiaryNewDetailContent(
                                 onValueChange = { password = it },
                                 label = { Text("Password") },
                                 visualTransformation = PasswordVisualTransformation(),
-                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
                                 isError = submitted && !isValidPassword && encryptWithPassword,
                                 shape = RoundedCornerShape(20.dp),
                                 leadingIcon = {
@@ -173,7 +189,9 @@ fun DiaryNewDetailContent(
                                 },
                                 label = { Text("Confirm password") },
                                 visualTransformation = PasswordVisualTransformation(),
-                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
                                 isError = submitted && !isValidPassword && encryptWithPassword,
                                 shape = RoundedCornerShape(20.dp),
                                 leadingIcon = {
@@ -197,13 +215,19 @@ fun DiaryNewDetailContent(
                             onClick = {
                                 submitted = true
                                 if (isValidText && (isValidPassword || !encryptWithPassword) && isValidTitle) {
-                                    onSave.invoke(
-                                        Diary(
-                                            title = title,
-                                            text = details,
-                                            password = if (encryptWithPassword) password else null
-                                        )
+                                    val diary = Diary(
+                                        title = title,
+                                        text = details,
+                                        password = if (encryptWithPassword) password else null
                                     )
+                                    onSave.invoke(
+                                        diary
+                                    )
+                                    if(isInternetAvailable(context) && id != null){
+                                        scope.launch(Dispatchers.IO) {
+                                            updateFirebase(diary, firestore, id)
+                                        }
+                                    }
                                     Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
                                     toHome.invoke()
                                 } else {
