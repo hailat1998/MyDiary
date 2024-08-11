@@ -22,13 +22,12 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
-class RepositoryImp(private val dairyDao: DiaryDao,
+class RepositoryImp(
     private val database: DiaryDatabase,
-                    private val userDao: UserDao,
     private val firestore: FirebaseFirestore,
-    private val coroutineDispatcher: CoroutineDispatcher,
-private val context: Context,
-    private val firebaseAuth: FirebaseAuth) : Repository {
+    private val context: Context,
+    private val firebaseAuth: FirebaseAuth,
+    private val coroutineDispatcher: CoroutineDispatcher,) : Repository {
 
 
     @OptIn(ExperimentalPagingApi::class)
@@ -37,20 +36,21 @@ private val context: Context,
             config = PagingConfig(pageSize = 20),
             remoteMediator = MyDiaryRemote(firestore = firestore, database = database,
                 context = context, firebaseAuth = firebaseAuth, dispatcher = coroutineDispatcher),
-            pagingSourceFactory = {dairyDao.getAllDiary() }
+            pagingSourceFactory = {database.dairyDao().getAllDiary() }
         ).flow
     }
 
     override suspend fun addUser(user: User) {
-        userDao.insertUser(user)
+        println("Adding user")
+        database.userDao().insertUser(user)
     }
 
     override suspend fun updateUser(user: User) {
-       userDao.updateUser(user)
+       database.userDao().updateUser(user)
     }
 
     override suspend fun getUser(id: String): User? {
-       return userDao.getUser(id)
+       return database.userDao().getUser(id)
     }
 
 
@@ -62,7 +62,7 @@ private val context: Context,
 
     override fun searchDiary(query: String): Flow<List<Diary>?> {
         return try {
-            dairyDao.searchDiary("%$query%")
+            database.dairyDao().searchDiary("%$query%")
 
         } catch (e: Exception) {
             println(e)
@@ -72,7 +72,7 @@ private val context: Context,
 
     override  suspend fun getDiaryById(id: String): Flow<Diary?> {
         return flow {
-            emit(dairyDao.getDiaryById(id))
+            emit(database.dairyDao().getDiaryById(id))
         }.catch { e ->
             println(e)
             emit(null) // Emit null in case of an exception
@@ -81,7 +81,7 @@ private val context: Context,
 
     override suspend fun updateDiary(diary: Diary) {
         try {
-            dairyDao.updateDiary(diary)
+            database.dairyDao().updateDiary(diary)
         } catch (e: Exception) {
             println(e)
         }
@@ -89,7 +89,7 @@ private val context: Context,
 
     override suspend fun deleteDiary(diary: Diary) {
         try {
-            dairyDao.deleteDiary(diary)
+            database.dairyDao().deleteDiary(diary)
         } catch (e: Exception) {
             println(e)
         }
@@ -98,7 +98,7 @@ private val context: Context,
     override suspend fun insertDiary(diary: Diary) {
         try {
 
-            dairyDao.insertDiary(diary)
+            database.dairyDao().insertDiary(diary)
             Log.i("FROM_REPO", "inserted")
         } catch (e: Exception) {
            println(e)

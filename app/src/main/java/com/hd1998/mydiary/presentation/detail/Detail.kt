@@ -375,7 +375,6 @@ fun DairyDetailContent(diary: Diary,
                     onClick = {
                         if(isInternetAvailable(context) && id != null){
                             scope.launch(Dispatchers.IO) {
-
                                 deleteFirebase(diary, firebaseFirestore, id)
                             }
                         }

@@ -89,6 +89,8 @@ dependencies {
     implementation(libs.coil.compose)
     androidTestImplementation(libs.truth)
     androidTestImplementation (libs.core.testing)
-    implementation(libs.firebase.bom)
+    implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.paging.runtime)
+
+    implementation(libs.androidx.room.paging)
 }

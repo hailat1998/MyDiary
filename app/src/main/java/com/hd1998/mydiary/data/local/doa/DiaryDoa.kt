@@ -22,7 +22,7 @@ interface DiaryDao {
     fun getAllDiary(): PagingSource<Int, Diary>
 
     @Query("SELECT * FROM Diary")
-    fun getDiariesLocal(): Flow<List<Diary>>
+    suspend fun getDiariesSnapshot(): List<Diary>
 
     @Insert
     suspend fun insertDiary(dairy: Diary)
@@ -33,7 +33,7 @@ interface DiaryDao {
     @Delete
     suspend fun deleteDiary(dairy: Diary)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(data: List<Diary>)
 
     @Query("DELETE FROM Diary")

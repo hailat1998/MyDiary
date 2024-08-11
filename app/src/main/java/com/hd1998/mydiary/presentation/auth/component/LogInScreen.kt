@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,60 +35,30 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.R
-import com.hd1998.mydiary.domain.model.Diary
-import com.hd1998.mydiary.domain.model.User
 import com.hd1998.mydiary.utils.compose.HorizontalDottedProgressBar
-import java.util.Date
 
 @Composable
-fun SignupScreen(
-    addUser:(user: User) -> Unit,
-    toHome:() -> Unit
-) {
+fun LogInScreen(toHome: () -> Unit,
+                updateUser:() -> Unit) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
-
-            var name by remember { mutableStateOf(TextFieldValue("")) }
             var email by remember { mutableStateOf(TextFieldValue("")) }
             var password by remember { mutableStateOf(TextFieldValue("")) }
-            var password2 by remember { mutableStateOf(TextFieldValue("")) }
             var hasError by remember { mutableStateOf(false) }
             var passwordVisualTransformation by remember {
                 mutableStateOf<VisualTransformation>(
                     PasswordVisualTransformation()
                 )
             }
-
-            val context = LocalContext.current
-
             val passwordInteractionState = remember { MutableInteractionSource() }
             val emailInteractionState = remember { MutableInteractionSource() }
+            var loading by remember { mutableStateOf(false) }
 
-            OutlinedTextField(
-                value = name,
-                leadingIcon = {
-                    Icon(painterResource(id = R.drawable.baseline_person_24), null)
-                },
-                maxLines = 1,
-                isError = hasError,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                colors = TextFieldDefaults.colors(),
-                label = { Text(text = "Full name") },
-                placeholder = { Text(text = "name") },
-                onValueChange = {
-                    name = it
-                },
-                interactionSource = emailInteractionState,
-            )
+            val context = LocalContext.current
 
             OutlinedTextField(
                 value = email,
@@ -149,78 +118,23 @@ fun SignupScreen(
                 visualTransformation = passwordVisualTransformation,
             )
 
-            OutlinedTextField(
-                value = password2,
-                leadingIcon = {
-                    Icon(painterResource(id = R.drawable.baseline_key_24), null)
-                },
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.visibility_off_24px),
-                        tint = Color.Black,
-                        modifier = Modifier.clickable {
-                            passwordVisualTransformation =
-                                if (passwordVisualTransformation != VisualTransformation.None) {
-                                    VisualTransformation.None
-                                } else {
-                                    PasswordVisualTransformation()
-                                }
-                        },
-                        contentDescription = null
-                    )
-                },
-                colors = TextFieldDefaults.colors(),
-                maxLines = 1,
-                isError = hasError,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                label = { Text(text = "Confirm Password") },
-                placeholder = { Text(text = "12334444") },
-                onValueChange = {
-                    password2 = it
-                },
-                interactionSource = passwordInteractionState,
-                visualTransformation = passwordVisualTransformation,
-            )
 
-
-            var loading by remember { mutableStateOf(false) }
             Button(
                 onClick = {
-                    if (invalidInput(name.text, email.text, password.text, password2.text)) {
+                    if (invalidInput(email.text, password.text)) {
                         hasError = true
                         loading = false
                     } else {
                         loading = true
                         hasError = false
-
-                        val userData = mutableMapOf(
-                            "name" to name.text,
-                            "email" to email.text,
-                            "diaries" to listOf<Diary>()
-                        )
-
-                        signUpAndAddUserToFirestore(
-                            email = email.text,
-                            password = password.text,
-                            userData = userData
-                        ) { success, message ->
+                        loginUser(email.text, password.text) { success, message ->
                             if (success) {
-                                val id = FirebaseAuth.getInstance().currentUser?.uid
-                                val user = User(
-                                    id = id!!,
-                                    name = name.text,
-                                    email = email.text,
-                                    date = Date()
-                                )
-                                addUser.invoke(user)
+                                updateUser.invoke()
                                 toHome.invoke()
                             } else {
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             }
+
                         }
                     }
                 },
@@ -233,48 +147,25 @@ fun SignupScreen(
                 if (loading) {
                     HorizontalDottedProgressBar()
                 } else {
-                    Text(text = "Sign up")
+                    Text(text = "Log In")
                 }
             }
-
         }
     }
 }
 
-    fun invalidInput(name: String, email: String, password: String, password2: String) =
-       ( email.isBlank() || password.isBlank() || name.isBlank() ) && password2 == password
+fun invalidInput(email: String, password: String) =
+    email.isBlank() || password.isBlank()
 
 
-    fun signUpAndAddUserToFirestore(
-        email: String,
-        password: String,
-        userData: MutableMap<String, Any>,
-        onResult: (Boolean, String?) -> Unit
-    ) {
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid
-
-                    if (userId != null) {
-                        userData.put("id", userId)
-                        db.collection("users").document(userId)
-                            .set(userData)
-                            .addOnSuccessListener {
-                                onResult(true, null) // Success
-                            }
-                            .addOnFailureListener { e ->
-                                onResult(false, e.message)
-                            }
-                    } else {
-                        onResult(false, "User ID is null")
-                    }
-                } else {
-                    onResult(false, task.exception?.message) // Auth error
-                }
+fun loginUser(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
+    val auth = FirebaseAuth.getInstance()
+    auth.signInWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                onResult(true, null) // Login successful
+            } else {
+                onResult(false, task.exception?.message) // Login failed
             }
-
-    }
+        }
+}

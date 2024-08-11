@@ -31,27 +31,25 @@ class AuthViewmodel(private val repository: Repository,
             if(id != null){
                 val user = repository.getUser(id)
                 val logInDay = user?.date?.time
-                if(Date().time - logInDay!! <= TWO_WEEK_MILLI){
+                if(logInDay != null && Date().time - logInDay <= TWO_WEEK_MILLI){
                     _shouldLogIn.value = false
                 }
             }
         }
     }
-    private fun updateUser(){
+    fun updateUser(){
         viewModelScope.launch(dispatcher) {
             val id = firebaseAuth.currentUser?.uid
             if(id != null){
-                val user = repository.getUser(id)
-                   val newUser = user?.copy(date = Date())
-                if (newUser != null) {
-                    repository.updateUser(newUser)
-                }
+                val newUser = repository.getUser(id)?.copy(date = Date())
+                repository.updateUser(newUser!!)
             }
         }
     }
-    private fun addUser(user: User){
-        viewModelScope.launch(dispatcher) {
 
+    fun addUser(user: User){
+        viewModelScope.launch(dispatcher) {
+             repository.addUser(user)
         }
     }
 }

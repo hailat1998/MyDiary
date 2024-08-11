@@ -1,5 +1,6 @@
 package com.hd1998.mydiary.utils.firebase
 
+import android.util.Log
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.domain.model.Diary
@@ -14,6 +15,7 @@ suspend fun deleteFirebase(diary: Diary, firestore: FirebaseFirestore, id: Strin
 
 
 suspend fun updateFirebase(diary: Diary, firestore: FirebaseFirestore, id: String){
+    Log.i("Firebase local", "Updating")
    val docRef = firestore.collection("users").document(id)
 
     docRef.update("diaries", FieldValue.arrayUnion(diary)).await()

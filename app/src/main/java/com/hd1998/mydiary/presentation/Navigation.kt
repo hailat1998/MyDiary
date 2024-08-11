@@ -37,7 +37,7 @@ fun App(navController: NavHostController){
       composable(Destination.Auth.route){
           val viewModel = koinViewModel<AuthViewmodel>()
           val shouldLogIn = viewModel.shouldLogIn.collectAsState()
-          AuthWrapper(shouldLogIn) {
+          AuthWrapper(shouldLogIn = shouldLogIn, addUser = viewModel::addUser, updateUser = viewModel::updateUser) {
               navController.navigateSingleTopTo(Destination.Home.route)
           }
       }

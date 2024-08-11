@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.room.Update
 import com.google.firebase.auth.FirebaseAuth
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.User
@@ -35,6 +36,7 @@ private const val SplashWaitTime: Long = 2000
 fun AuthWrapper(
     shouldLogIn: State<Boolean>,
     addUser: (user: User) -> Unit,
+    updateUser: () -> Unit,
     toHome: () -> Unit
 ) {
     var wait by remember { mutableStateOf(false) }
@@ -76,13 +78,13 @@ fun AuthWrapper(
                     val firebaseUser = FirebaseAuth.getInstance().currentUser
                     if (firebaseUser != null) {
                         if (shouldLogIn.value) {
-                            LogInScreen(toHome = toHome)
+                            LogInScreen(toHome = toHome, updateUser)
                         } else {
                             toHome.invoke()
                         }
                     } else {
                         if (selectedTabIndex == 0) {
-                            LogInScreen(toHome = toHome)
+                            LogInScreen(toHome = toHome, updateUser)
                         } else {
                             SignupScreen(toHome = toHome, addUser = addUser)
                         }
