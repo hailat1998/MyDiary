@@ -64,7 +64,7 @@ fun HomeScreen(
         context.finish()
     }
     LaunchedEffect(key1 = lazyListState) {
-        if(lazyListState.canScrollBackward){
+        if(!lazyListState.canScrollBackward){
             loadNext.invoke()
         }
     }
