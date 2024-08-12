@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +44,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.Diary
+import com.hd1998.mydiary.utils.remoteHasRun
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -50,7 +53,9 @@ fun HomeScreen(
     diaries: LazyPagingItems<Diary>,
     toDiaryDetail: (id: String?) -> Unit,
     toNewDiary: () -> Unit,
-    toSearch: () -> Unit
+    toSearch: () -> Unit,
+    refresh: () -> Unit,
+    loadNext: () -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current as Activity
@@ -58,8 +63,13 @@ fun HomeScreen(
     BackHandler {
         context.finish()
     }
+    LaunchedEffect(key1 = lazyListState) {
+        if(lazyListState.canScrollBackward){
+            loadNext.invoke()
+        }
+    }
     Scaffold(
-        topBar = { TopBar(toSearch) },
+        topBar = { TopBar(toSearch, refresh) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { toNewDiary() },
@@ -102,18 +112,24 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(toSearch: () -> Unit) {
+fun TopBar(toSearch: () -> Unit, refresh:() -> Unit) {
     TopAppBar(
         title = { Text(text = "My Diaries", fontWeight = FontWeight.Bold) },
         actions = {
-            Button(onClick = { toSearch() }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
+
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search",
              modifier = Modifier
-                 .size(60.dp)
-                 .padding(end = 18.dp),
+                 .size(55.dp)
+                 .padding(end = 18.dp)
+                 .clickable { toSearch.invoke() },
                     tint = Color.Black
                 )
-            }
+
+            Icon(Icons.Default.Refresh, null, tint = Color.Black, modifier = Modifier.clickable {
+               remoteHasRun = false
+                refresh.invoke()
+                 }.size(55.dp)
+                .padding(end = 18.dp))
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0xFF6F5753)

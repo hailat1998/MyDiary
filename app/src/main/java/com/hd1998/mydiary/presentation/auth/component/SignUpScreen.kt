@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,11 +29,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -46,7 +50,8 @@ import java.util.Date
 @Composable
 fun SignupScreen(
     addUser:(user: User) -> Unit,
-    toHome:() -> Unit
+    toHome:() -> Unit,
+    selectedTab: MutableIntState
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -171,7 +176,7 @@ fun SignupScreen(
                 },
                 colors = TextFieldDefaults.colors(),
                 maxLines = 1,
-                isError = hasError,
+                isError = password != password2 ,
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -219,6 +224,7 @@ fun SignupScreen(
                                 addUser.invoke(user)
                                 toHome.invoke()
                             } else {
+                                loading = false
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -237,6 +243,31 @@ fun SignupScreen(
                 }
             }
 
+            val annotatedString = buildAnnotatedString {
+                append("or ")
+                pushStringAnnotation(tag = "LOG_IN", annotation = "Login")
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Blue,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append(" Login")
+                }
+                append(" if you have an account")
+            }
+
+            Text(
+                text = annotatedString,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .clickable(
+                        onClick = {
+                            annotatedString.getStringAnnotations("LOG_IN", 0, annotatedString.length)
+                                .firstOrNull()?.let { selectedTab.intValue = 0 }
+                        }
+                    )
+                )
         }
     }
 }
@@ -264,7 +295,7 @@ fun SignupScreen(
                         db.collection("users").document(userId)
                             .set(userData)
                             .addOnSuccessListener {
-                                onResult(true, null) // Success
+                                onResult(true, null)
                             }
                             .addOnFailureListener { e ->
                                 onResult(false, e.message)

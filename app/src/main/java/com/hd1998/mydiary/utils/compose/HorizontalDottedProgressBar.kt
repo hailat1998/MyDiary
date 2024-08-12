@@ -20,7 +20,7 @@ fun HorizontalDottedProgressBar() {
     val transition = rememberInfiniteTransition(label = "hd")
     val state by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 6f,
+        targetValue = 9f,
         animationSpec = infiniteRepeatable(
             animation = tween(
                 durationMillis = 700,
@@ -45,10 +45,10 @@ fun DrawCanvas(
             .height(60.dp),
     ) {
 
-        val radius = (4.dp).value
+        val radius = (7.dp).value
         val padding = (6.dp).value
 
-        for (i in 1..5) {
+        for (i in 1..8) {
             if (i - 1 == state.toInt()) {
                 drawCircle(
                     radius = radius * 2,

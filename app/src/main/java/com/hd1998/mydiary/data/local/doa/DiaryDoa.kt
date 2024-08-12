@@ -33,7 +33,7 @@ interface DiaryDao {
     @Delete
     suspend fun deleteDiary(dairy: Diary)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(data: List<Diary>)
 
     @Query("DELETE FROM Diary")

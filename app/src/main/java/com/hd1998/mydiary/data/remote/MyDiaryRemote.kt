@@ -27,7 +27,7 @@ class MyDiaryRemote(private val firestore: FirebaseFirestore,private val firebas
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Diary>): MediatorResult {
         val id = firebaseAuth.currentUser?.uid
         Log.i("Remote" , "Started")
-            return if(isInternetAvailable(context) && id != null && !remoteHasRun){
+            return if(isInternetAvailable(context) && id != null){
 
                 Log.i("Remote" , "Started")
             try {
@@ -93,7 +93,7 @@ class MyDiaryRemote(private val firestore: FirebaseFirestore,private val firebas
                 }
                     }
                   Log.i("Remote" , "Success")
-                remoteHasRun = true
+                     remoteHasRun = true
                 MediatorResult.Success(endOfPaginationReached = true)
             } catch (e: Exception) {
                 Log.i("Remote", "REMOTE_ERROR")

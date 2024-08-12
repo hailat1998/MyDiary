@@ -17,6 +17,15 @@ class HomeScreenViewModel(private val repository: Repository, private val corout
     val screenState: StateFlow<HomeScreenState> = _screenState
 
 
+    fun refresh(){
+        loadWithPaging()
+    }
+
+   fun loadNext(){
+       loadWithPaging()
+   }
+
+
 
    private fun fetchDairyData() {
         viewModelScope.launch(coroutineDispatcher) {

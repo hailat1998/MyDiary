@@ -49,6 +49,8 @@ class AuthViewmodel(private val repository: Repository,
 
     fun addUser(user: User){
         viewModelScope.launch(dispatcher) {
+            repository.deleteUser()
+            repository.deleteAllDiary()
              repository.addUser(user)
         }
     }

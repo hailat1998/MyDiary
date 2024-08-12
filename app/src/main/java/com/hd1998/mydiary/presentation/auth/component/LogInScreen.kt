@@ -1,5 +1,6 @@
 package com.hd1998.mydiary.presentation.auth.component
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,9 +19,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,19 +31,33 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.R
+import com.hd1998.mydiary.domain.model.User
 import com.hd1998.mydiary.utils.compose.HorizontalDottedProgressBar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.Date
 
 @Composable
 fun LogInScreen(toHome: () -> Unit,
-                updateUser:() -> Unit) {
+                updateUser:() -> Unit,
+                addUser: (User) -> Unit,
+                selectedTab: MutableIntState
+) {
+    val idOld = FirebaseAuth.getInstance().currentUser?.uid
+    val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -129,7 +146,33 @@ fun LogInScreen(toHome: () -> Unit,
                         hasError = false
                         loginUser(email.text, password.text) { success, message ->
                             if (success) {
-                                updateUser.invoke()
+                                if(idOld == null){
+                                    Log.i("LOGIN", "ADD")
+                                    val newId = FirebaseAuth.getInstance().currentUser?.uid
+                                    scope.launch(Dispatchers.IO) {
+                                        FirebaseFirestore.getInstance().collection("users").document(newId!!).get()
+                                            .addOnSuccessListener {document ->
+                                                if(document != null){
+                                                    val id = document.getString("id")
+                                                    val name = document.getString("name")
+                                                    val email = document.getString("email")
+
+                                                    val user = User(id = id!!,
+                                                          name = name!!,
+                                                        date = Date(),
+                                                        email = email!!)
+
+                                                    addUser(user)
+                                                }
+
+                                            }
+
+                                    }
+
+                                }else{
+                                    Log.i("LOGIN", "UPDATE")
+                                    updateUser.invoke()
+                                }
                                 toHome.invoke()
                             } else {
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -150,6 +193,35 @@ fun LogInScreen(toHome: () -> Unit,
                     Text(text = "Log In")
                 }
             }
+
+            val annotatedString = buildAnnotatedString {
+                append("or ")
+                pushStringAnnotation(tag = "SIGN_UP", annotation = "Sign Up")
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Blue,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append("Sign Up")
+                }
+                pop()
+                append(" if you have an account")
+            }
+
+            Text(
+                text = annotatedString,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .clickable(
+                        onClick = {
+                            annotatedString
+                                .getStringAnnotations("SIGN_UP", 0, annotatedString.length)
+                                .firstOrNull()
+                                ?.let { selectedTab.intValue = 1 }
+                        }
+                    )
+            )
         }
     }
 }

@@ -18,4 +18,6 @@ interface Repository {
     suspend fun updateUser(user: User)
     suspend fun getUser(id: String): User?
     suspend fun addUser(user: User)
+    suspend fun deleteUser()
+    suspend fun deleteAllDiary()
 }

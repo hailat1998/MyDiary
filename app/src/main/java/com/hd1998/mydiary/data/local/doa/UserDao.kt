@@ -1,6 +1,7 @@
 package com.hd1998.mydiary.data.local.doa
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -17,4 +18,7 @@ interface UserDao {
 
             @Insert
             suspend fun insertUser(user: User)
+
+            @Query("DELETE FROM User")
+            suspend fun delete()
 }
