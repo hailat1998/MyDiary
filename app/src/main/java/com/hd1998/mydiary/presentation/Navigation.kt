@@ -52,23 +52,7 @@ fun App(navController: NavHostController){
 
       composable(Destination.Auth.route){
           val viewModel = koinViewModel<AuthViewmodel>()
-          val id = FirebaseAuth.getInstance().currentUser?.uid
           val shouldLogIn = viewModel.shouldLogIn.collectAsState()
-          var wait by remember { mutableStateOf(false) }
-          LaunchedEffect(Unit) {
-              wait = true
-              delay(SplashWaitTime)
-              wait = false
-          }
-
-          if (wait) {
-              Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                  SplashScreen()
-              }
-          }
-          if(id != null && !shouldLogIn.value){
-             navController.navigateSingleTopTo(Destination.Home.route)
-             }
           AuthWrapper(shouldLogIn = shouldLogIn, addUser = viewModel::addUser, updateUser = viewModel::updateUser) {
               navController.navigateSingleTopTo(Destination.Home.route)
           }
