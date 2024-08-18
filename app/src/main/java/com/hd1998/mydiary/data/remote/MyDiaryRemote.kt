@@ -36,12 +36,20 @@ class MyDiaryRemote(private val firestore: FirebaseFirestore,private val firebas
 
                 val fieldValue = withContext(dispatcher) {
                     val document = docRef.get().await()
-
+                        println(document)
                     if (document != null && document.exists()) {
                         val diaries = document.get("diaries") as? MutableList<Map<String, Any>> ?: mutableListOf()
                          diaries.map { data ->
+                             Log.i("Remote" , "Docs")
                             val timestamp = data["date"] as? Timestamp
                             val date = timestamp?.toDate()
+                             Log.i("Remote" , "None Before NPE")
+                             println(data["id"])
+                             println(data["title"])
+                             println(data["text"])
+                             println(data["password"])
+                             println(data["date"].toString())
+                             Log.i("Remote" , "None Before NPE2")
                             Diary(
                                 id = data["id"] as? String ?: "",
                                 title = data["title"] as? String ?: "",
@@ -49,6 +57,7 @@ class MyDiaryRemote(private val firestore: FirebaseFirestore,private val firebas
                                 password = data["password"] as? String,
                                 date = date!!
                             )
+
                         }
 
                     } else {
@@ -93,10 +102,10 @@ class MyDiaryRemote(private val firestore: FirebaseFirestore,private val firebas
                 }
                     }
                   Log.i("Remote" , "Success")
-                     remoteHasRun = true
+                remoteHasRun = true
                 MediatorResult.Success(endOfPaginationReached = true)
             } catch (e: Exception) {
-                Log.i("Remote", "REMOTE_ERROR")
+                Log.i("Remote", "REMOTE_ERROR $e")
                 MediatorResult.Error(e)
             }
         }else{

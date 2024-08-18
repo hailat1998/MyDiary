@@ -48,6 +48,7 @@ sealed class Destination(val route: String){
 
 @Composable
 fun App(navController: NavHostController){
+    val homeViewModel = koinViewModel<HomeScreenViewModel>()
   NavHost(navController = navController, startDestination = Destination.Auth.route){
 
       composable(Destination.Auth.route){
@@ -59,8 +60,8 @@ fun App(navController: NavHostController){
          }
 
       composable(Destination.Home.route) {
-        val viewModel = koinViewModel<HomeScreenViewModel>()
-         val diaries = viewModel.loadWithPaging().collectAsLazyPagingItems()
+
+         val diaries = homeViewModel.diaryPagingData.collectAsLazyPagingItems()
         HomeScreen(diaries = diaries,
             toDiaryDetail = { id ->
                 Log.i("NAV", id!!)
@@ -72,8 +73,8 @@ fun App(navController: NavHostController){
             toSearch = {
             navController.navigateSingleTopTo(Destination.Search.route)
             },
-            refresh = viewModel::refresh,
-            loadNext = viewModel::loadNext
+            refresh = homeViewModel::refresh,
+            loadNext = homeViewModel::loadNext
               )
       }
 

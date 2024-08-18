@@ -2,6 +2,7 @@ package com.hd1998.mydiary.presentation.auth.component
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -62,6 +66,13 @@ fun LogInScreen(toHome: () -> Unit,
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            Image(painter = painterResource(id = R.drawable.background), null,
+                colorFilter = ColorFilter.tint(Color.Transparent, blendMode = BlendMode.Darken),
+                contentScale = ContentScale.FillHeight,
+                alpha = 0.8f
+            )
+        }
         Column(verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
             var email by remember { mutableStateOf(TextFieldValue("")) }
             var password by remember { mutableStateOf(TextFieldValue("")) }
@@ -162,11 +173,10 @@ fun LogInScreen(toHome: () -> Unit,
                                                         date = Date(),
                                                         email = email!!)
 
-                                                    addUser(user)
+                                                     addUser(user)
                                                 }
 
                                             }
-
                                     }
 
                                 }else{
@@ -216,7 +226,7 @@ fun LogInScreen(toHome: () -> Unit,
                     .clickable(
                         onClick = {
                             annotatedString
-                                .getStringAnnotations("SIGN_UP", 0, annotatedString.length)
+                                .getStringAnnotations("SIGN_UP", 3, annotatedString.length - 23)
                                 .firstOrNull()
                                 ?.let { selectedTab.intValue = 1 }
                         }

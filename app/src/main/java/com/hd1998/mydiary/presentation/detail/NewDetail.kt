@@ -47,6 +47,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd1998.mydiary.R
 import com.hd1998.mydiary.domain.model.Diary
+import com.hd1998.mydiary.utils.firebase.addFirebase
 import com.hd1998.mydiary.utils.firebase.updateFirebase
 import com.hd1998.mydiary.utils.isInternetAvailable
 import kotlinx.coroutines.Dispatchers
@@ -225,7 +226,7 @@ fun DiaryNewDetailContent(
                                     )
                                     if(isInternetAvailable(context) && id != null){
                                         scope.launch(Dispatchers.IO) {
-                                            updateFirebase(diary, firestore, id)
+                                           addFirebase(diary, firestore, id)
                                         }
                                     }
                                     Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()

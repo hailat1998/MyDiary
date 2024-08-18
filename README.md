@@ -15,6 +15,9 @@ A fully functional Android app that lets users create accounts and add, edit, an
 ## Getting Started
 
 To run this project, follow the instructions from the [Firebase Console](https://console.firebase.google.com/).
+Then create a collection called 'users' in firestore, also dont forget to set authentication with email and password.
+
+while setting the firestore make sure that the first document is set in fit with Diary object.  
 
 ## Features
 
@@ -25,10 +28,6 @@ To run this project, follow the instructions from the [Firebase Console](https:/
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-Contributions are welcome! Please read the [CONTRIBUTING](CONTRIBUTING.md) file for guidelines.
 
 ## Contact
 

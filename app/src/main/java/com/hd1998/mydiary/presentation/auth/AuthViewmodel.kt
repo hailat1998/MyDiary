@@ -37,6 +37,8 @@ class AuthViewmodel(private val repository: Repository,
             }
         }
     }
+
+
     fun updateUser(){
         viewModelScope.launch(dispatcher) {
             val id = firebaseAuth.currentUser?.uid

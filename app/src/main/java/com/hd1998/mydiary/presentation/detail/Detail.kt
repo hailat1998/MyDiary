@@ -341,13 +341,14 @@ fun DairyDetailContent(diary: Diary,
                     onClick = {
                         submitted = true
                         if (isValidText && (isValidPassword || !encryptWithPassword) && isValidTitle) {
+                            val oldDiary = diary
                             diary.title = title
                             diary.text = details
                             diary.password = if(encryptWithPassword) password else null
                             diary.date = Date()
                             if(isInternetAvailable(context) && id != null) {
                                 scope.launch(Dispatchers.IO) {
-                                    updateFirebase(diary, firebaseFirestore, id)
+                                    updateFirebase(oldDiary, diary, firebaseFirestore, id)
                                 }
                             }
                             onSave.invoke(

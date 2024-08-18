@@ -14,10 +14,19 @@ suspend fun deleteFirebase(diary: Diary, firestore: FirebaseFirestore, id: Strin
 }
 
 
-suspend fun updateFirebase(diary: Diary, firestore: FirebaseFirestore, id: String){
+suspend fun updateFirebase(oldDiary: Diary, newDiary: Diary ,firestore: FirebaseFirestore, id: String){
     Log.i("Firebase local", "Updating")
-   val docRef = firestore.collection("users").document(id)
+    val docRef = firestore.collection("users").document(id)
 
+
+    docRef.update("diaries", FieldValue.arrayRemove(oldDiary)).await()
+    docRef.update("diaries", FieldValue.arrayUnion(newDiary)).await()
+
+
+}
+
+suspend fun addFirebase(diary: Diary, firestore: FirebaseFirestore, id: String){
+    Log.i("Firebase local", "Updating")
+    val docRef = firestore.collection("users").document(id)
     docRef.update("diaries", FieldValue.arrayUnion(diary)).await()
-
 }

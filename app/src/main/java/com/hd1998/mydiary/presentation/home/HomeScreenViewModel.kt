@@ -3,6 +3,7 @@ package com.hd1998.mydiary.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.hd1998.mydiary.domain.model.Diary
 import com.hd1998.mydiary.domain.repository.Repository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -16,13 +17,14 @@ class HomeScreenViewModel(private val repository: Repository, private val corout
     private val _screenState = MutableStateFlow(HomeScreenState(emptyList() ,  true))
     val screenState: StateFlow<HomeScreenState> = _screenState
 
+    val diaryPagingData = loadNext()
 
     fun refresh(){
         loadWithPaging()
     }
 
-   fun loadNext(){
-       loadWithPaging()
+   fun loadNext(): Flow<PagingData<Diary>>{
+       return loadWithPaging().cachedIn(viewModelScope)
    }
 
 
@@ -38,7 +40,7 @@ class HomeScreenViewModel(private val repository: Repository, private val corout
             }
         }
     }
-     fun loadWithPaging(): Flow<PagingData<Diary>> = repository.getPager()
+     private fun loadWithPaging(): Flow<PagingData<Diary>> = repository.getPager()
 
 
 }
